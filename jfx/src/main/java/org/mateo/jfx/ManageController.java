@@ -3,14 +3,20 @@ package org.mateo.jfx;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -110,8 +116,11 @@ public class ManageController {
     private void handleEditTransaction() {
         Transaction selectedTransaction = transactionTable.getSelectionModel().getSelectedItem();
         if (selectedTransaction != null) {
-            // Code to open edit window and update transaction
-            showAlert("Edit Transaction", "Editing transactions is not implemented yet.");
+            boolean saveClicked = showEditDialog(selectedTransaction);
+            if (saveClicked) {
+                loadTransactions();
+                showAlert("Success", "Transaction updated successfully.");
+            }
         } else {
             showAlert("No Selection", "No transaction selected.");
         }
@@ -137,8 +146,32 @@ public class ManageController {
         }
     }
 
+    private boolean showEditDialog(Transaction transaction) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("edit_transaction.fxml"));
+            Parent page = loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit Transaction");
+            dialogStage.setScene(new Scene(page));
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(transactionTable.getScene().getWindow());
+
+            EditTransactionController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setTransaction(transaction);
+
+            dialogStage.showAndWait();
+
+            return controller.isSaveClicked();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

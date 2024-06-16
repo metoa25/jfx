@@ -36,4 +36,20 @@ public class Transaction {
     public LocalDate getDate() {
         return date;
     }
+
+    public void setAmount(double v) {
+        this.amount = v;
+    }
+
+    public void setCategory(String text) {
+        this.category = text;
+    }
+
+    public void setType(String value) {
+        this.type = value;
+    }
+
+    public void setDate(LocalDate value) {
+        this.date = value;
+    }
 }
